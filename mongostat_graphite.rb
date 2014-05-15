@@ -32,9 +32,16 @@ class MongostatGraphite
    }
   end
 
+  def replace_special_headers(headers)
+    headers.gsub! /idx miss %/, 'idx_miss_percentage'
+    headers.gsub! /locked %/,   'locked_percentage'
+    headers
+  end
+
   def get_headers(line)
-    columns = line.split(/\s/).select{|part| part.length > 0}
-    columns.select { |part| part =~ /^[a-z]|[A-Z]/}
+    header_line = replace_special_headers(line)
+    headers = header_line.split(/\s/).select{|part| part.length > 0}
+    headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
   def get_data(headers, line)
