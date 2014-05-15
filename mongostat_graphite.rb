@@ -7,9 +7,12 @@ class MongostatGraphite
 
   def read_input(&block)
     ARGF.each_line do |line|
-      if !(line.start_with?("connected"))
-        @headers = get_headers(line) if line =~ /^[a-zA-Z]/
-        data = get_data(@headers, line)
+      if line =~ /^connected/
+        # ignore
+      elsif line =~ /^[a-zA-Z]/
+        get_headers(line)
+      else
+        data = get_data(line)
         block.call(data) if block
       end
     end
@@ -17,10 +20,7 @@ class MongostatGraphite
 
   def read_and_output_to_stdout
     read_input do |data|
-      data.each_key { |key|
-        val = data[key]
-        puts "#{key}: #{val}"
-      }
+      puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
     end
   end
 
@@ -32,14 +32,15 @@ class MongostatGraphite
 
   def get_headers(line)
     header_line = replace_special_headers(line)
-    headers = header_line.split(/\s|\|/).select{|part| part.length > 0}
-    headers.select { |part| part =~ /^[a-z]|[A-Z]/}
+    @headers = header_line.split(/\s|\|/).select{|part| part.length > 0}
+    @headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
-  def get_data(headers, line)
+  def get_data(line)
+    results = []
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
-    headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
+    @headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
   end
 
 end
