@@ -31,8 +31,13 @@ class Mongostat
   end
 
   def replace_special_headers(headers)
-    headers.gsub! /idx miss %/, 'idx_miss_percentage'
-    headers.gsub! /locked %/,   'locked_percentage'
+    patterns = {}
+    patterns[/idx miss %/] = 'idx_miss_percentage'
+    patterns[/locked %/] = 'locked_percentage'
+
+    patterns.each { |key, value|
+      headers.gsub! key, value
+    }
     headers
   end
 
