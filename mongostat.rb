@@ -13,12 +13,13 @@ class Mongostat
 
   def read_input(&block)
     ARGF.each_line do |line|
-      if line =~ /^connected/
-        # ignore
-      elsif line =~ /^[a-zA-Z]/
-        set_headers_from line
-      else
-        block.call(get_data_from(line)) if block
+
+      if !(line =~ /^connected/)
+        if line =~ /^[a-zA-Z]/
+          set_headers_from line
+        else
+          block.call(get_data_from(line)) if block
+        end
       end
     end
   end

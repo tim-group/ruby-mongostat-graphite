@@ -47,7 +47,7 @@ describe 'Mongostat' do
     test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
     symbol_hash = @mongo_stat.get_data_from(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
-    symbol_hash.should eql (
+    symbol_hash.should eql(
       {
       :vsize => "34.1g",
       :netIn=>"62b",
