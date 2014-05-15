@@ -53,6 +53,15 @@ describe 'Mongostat_Graphite' do
 
     metrics_received = @graphite_logger.metrics_received
     metrics_received["locked_percentage"].should eql "9"
+    metrics_received["faults"].should eql "8"
+    metrics_received["qw"].should eql "12"
+    metrics_received["aw"].should eql "14"
+    metrics_received["qr"].should eql "11"
+    metrics_received["ar"].should eql "13"
+    metrics_received["query"].should eql "2"
+    metrics_received["insert"].should eql "1"
+    metrics_received["update"].should eql "3"
+    metrics_received["delete"].should eql "4"
   end
 
 end

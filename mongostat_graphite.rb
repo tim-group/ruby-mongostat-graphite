@@ -9,7 +9,7 @@ class Mongostat_Graphite < Mongostat
   attr_reader :graphite_metrics
 
   def initialize(args={})
-    @graphite_metrics = ["locked_percentage"]
+    @graphite_metrics = ["locked_percentage", "insert", "query", "update", "delete", "faults", "ar", "aw", "qr", "qw"]
     graphite_host = 'metrics'
     #graphite_port
     @graphite_logger = args[:graphite_logger] || Graphite::Logger.new(graphite_host)
