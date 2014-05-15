@@ -25,24 +25,26 @@ class MongostatGraphite
   def read_input
    ARGF.each_line { |line|
      if !(line.start_with?("connected"))
-       columns = line.split(/\s/).select{|part| part.length > 0}
-       new_headers = columns.select { |part| part =~ /^[a-z]|[A-Z]/}
-       # @headers.each { |header| puts header }
-
-       data = columns.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
-
-       # data.each { |item| puts item }
-
-       if (!data.empty?)
-
-         @headers.zip(data).each { |key, value| puts "#{key}, #{value}" }
-
-       end
-
-
+       headers = get_headers(line)
+       data = get_data(headers, line)
      end
 
    }
+  end
+
+  def get_headers(line)
+    columns = line.split(/\s/).select{|part| part.length > 0}
+    columns.select { |part| part =~ /^[a-z]|[A-Z]/}
+  end
+
+  def get_data(headers, line)
+    results = []
+    columns = line.split(/\s/).select{|part| part.length > 0}
+    data = columns.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
+    if (!data.empty?)
+      results = headers.zip(data) #.each { |key, value| puts "#{key}, #{value}" }
+    end
+    results
   end
 
 end
