@@ -1,10 +1,15 @@
 #!/usr/bin/ruby
 
-class MongostatGraphite
-  attr_reader :headers
-  @headers = ["insert", "query", "update", "delete", "getmore", "command", "flushes",
-              "mapped", "vsize", "res", "faults", "lockedv", "idx", "miss", "qr|qw", "ar|aw",
-              "netIn", "netOut", "conn", "time"]
+require 'rubygems'
+require 'graphite/logger'
+
+class Mongostat
+  attr_reader :headers, :graphite_metrics
+  @headers = {}
+  @graphite_metrics = ["locked_percentage"]
+  #["insert", "query", "update", "delete", "getmore", "command", "flushes",
+  #            "mapped", "vsize", "res", "faults", "lockedv", "idx", "miss", "qr|qw", "ar|aw",
+  #            "netIn", "netOut", "conn", "time"]
 
   def read_input(&block)
     ARGF.each_line do |line|
@@ -22,6 +27,19 @@ class MongostatGraphite
     read_input do |data|
       puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
     end
+  end
+
+  def read_and_output_to_graphite
+    @graphitehost = 'localhost'
+    @graphite = Graphite::Logger.new(@graphitehost)
+    @graphite.logger = Logger.new('graphite.out')
+
+    graphite_rows = []
+    read_input do |data|
+      graphite_rows = data.sort.map {|key,value| "mongo.#{hosntame}.#{key}:#{value}" }.join(',')
+      graphite_rows = prefix_keys(rows, "mysql.#{@mysql_hostname.split('.').reverse.join('.')}.")
+    end
+    @graphite.log(Time.now.to_i, graphite_rows) if @graphite
   end
 
   def replace_special_headers(headers)
@@ -45,6 +63,6 @@ class MongostatGraphite
 end
 
 if caller() == []
-  MongostatGraphite.new.read_and_output_to_stdout
+  Mongostat.new.read_and_output_to_stdout
 end
 

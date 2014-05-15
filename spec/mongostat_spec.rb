@@ -1,13 +1,13 @@
 require 'rubygems'
-require 'mongostat_graphite'
+require 'mongostat'
 $: << File.join(File.dirname(__FILE__),  "..", "files")
 
-describe 'AssertOutputColsTest' do
+describe 'Mongostat' do
 
-  class AssertOutputColsTest
+  class MongostatTest
 
     def initialize()
-      script_filename = 'mongostat_graphite.rb'
+      script_filename = 'mongostat.rb'
       @script_path = File.join(File.dirname(__FILE__), "..")
       @fixture_path = File.join(File.dirname(__FILE__), "fixtures")
       @script = "/usr/bin/ruby #{@script_path}/#{script_filename}"
@@ -19,8 +19,8 @@ describe 'AssertOutputColsTest' do
   end
 
   before do
-   @test = AssertOutputColsTest.new
-   @mongo_stat = MongostatGraphite.new
+   @test = MongostatTest.new
+   @mongo_stat = Mongostat.new
   end
 
   after do
