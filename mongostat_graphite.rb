@@ -1,26 +1,9 @@
 #!/usr/bin/ruby
 
 class MongostatGraphite
-  @headers = ["insert",
-              "query",
-              "update",
-              "delete",
-              "getmore",
-              "command",
-              "flushes",
-              "mapped",
-              "vsize",
-              "res",
-              "faults",
-              "lockedv",
-              "idx",
-              "miss",
-              "qr|qw",
-              "ar|aw",
-              "netIn",
-              "netOut",
-              "conn",
-              "time"]
+  @headers = ["insert", "query", "update", "delete", "getmore", "command", "flushes",
+              "mapped", "vsize", "res", "faults", "lockedv", "idx", "miss", "qr|qw", "ar|aw",
+              "netIn", "netOut", "conn", "time"]
 
   def read_input(&block)
     ARGF.each_line do |line|
@@ -34,7 +17,10 @@ class MongostatGraphite
 
   def read_and_output_to_stdout
     read_input do |data|
-       data.each {|key,val| puts "#{key}: #{val}"}
+      data.each_key { |key|
+        val = data[key]
+        puts "#{key}: #{val}"
+      }
     end
   end
 
@@ -51,10 +37,9 @@ class MongostatGraphite
   end
 
   def get_data(headers, line)
-    results = []
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
-    headers.zip(data)
+    headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
   end
 
 end
