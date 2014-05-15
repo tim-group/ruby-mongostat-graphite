@@ -22,14 +22,20 @@ class MongostatGraphite
               "conn",
               "time"]
 
-  def read_input
-   ARGF.each_line { |line|
-     if !(line.start_with?("connected"))
-       headers = get_headers(line)
-       data = get_data(headers, line)
-     end
+  def read_input(&block)
+    ARGF.each_line do |line|
+      if !(line.start_with?("connected"))
+        @headers = get_headers(line) if line =~ /^[a-zA-Z]/
+        data = get_data(@headers, line)
+        block.call(data) if block
+      end
+    end
+  end
 
-   }
+  def read_and_output_to_stdout
+    read_input do |data|
+       data.each {|key,val| puts "#{key}: #{val}"}
+    end
   end
 
   def replace_special_headers(headers)
@@ -54,6 +60,6 @@ class MongostatGraphite
 end
 
 if caller() == []
-  MongostatGraphite.new.read_input
+  MongostatGraphite.new.read_and_output_to_stdout
 end
 
