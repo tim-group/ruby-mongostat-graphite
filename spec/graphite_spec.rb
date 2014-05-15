@@ -41,14 +41,16 @@ describe 'Mongostat_Graphite' do
   end
 
   it 'should return the headers for mongostat 2.0.9' do
+    headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
+    test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
+
     @graphite_logger = MockGraphiteLogger.new
     @mongo_stat = Mongostat_Graphite.new({:graphite_logger => @graphite_logger})
-
-    headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     @mongo_stat.set_headers_from(headers_209)
-    test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
+
     data = @mongo_stat.get_data_from(test_data)
     @mongo_stat.output_to_graphite(data)
+
     @graphite_logger.metrics_received.should eql "hello"
   end
 
