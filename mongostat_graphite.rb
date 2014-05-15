@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 class MongostatGraphite
+  attr_reader :headers
   @headers = ["insert", "query", "update", "delete", "getmore", "command", "flushes",
               "mapped", "vsize", "res", "faults", "lockedv", "idx", "miss", "qr|qw", "ar|aw",
               "netIn", "netOut", "conn", "time"]
@@ -10,10 +11,9 @@ class MongostatGraphite
       if line =~ /^connected/
         # ignore
       elsif line =~ /^[a-zA-Z]/
-        get_headers(line)
+        set_headers_from line
       else
-        data = get_data(line)
-        block.call(data) if block
+        block.call(get_data_from(line)) if block
       end
     end
   end
@@ -30,14 +30,13 @@ class MongostatGraphite
     headers
   end
 
-  def get_headers(line)
+  def set_headers_from(line)
     header_line = replace_special_headers(line)
-    @headers = header_line.split(/\s|\|/).select{|part| part.length > 0}
-    @headers.select { |part| part =~ /^[a-z]|[A-Z]/}
+    new_headers = header_line.split(/\s|\|/).select{|part| part.length > 0}
+    @headers = new_headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
-  def get_data(line)
-    results = []
+  def get_data_from(line)
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
     @headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}

@@ -20,6 +20,7 @@ describe 'AssertOutputColsTest' do
 
   before do
    @test = AssertOutputColsTest.new
+   @mongo_stat = MongostatGraphite.new
   end
 
   after do
@@ -31,20 +32,20 @@ describe 'AssertOutputColsTest' do
 
   it 'should return the headers for mongostat 2.0.9' do
     headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
-    MongostatGraphite.new.get_headers(headers_209).should eql ["insert", "query", "update", "delete", "getmore", "command", "flushes", "mapped", "vsize", "res", "faults", "locked_percentage", "idx_miss_percentage", "qr", "qw", "ar", "aw", "netIn", "netOut", "conn", "time"]
+    @mongo_stat.set_headers_from(headers_209)
+    @mongo_stat.headers.should eql ["insert", "query", "update", "delete", "getmore", "command", "flushes", "mapped", "vsize", "res", "faults", "locked_percentage", "idx_miss_percentage", "qr", "qw", "ar", "aw", "netIn", "netOut", "conn", "time"]
   end
 
   it 'should rename special headers' do
     headers = "insert locked % idx miss %"
-    MongostatGraphite.new.replace_special_headers(headers).should eql "insert locked_percentage idx_miss_percentage"
+    @mongo_stat.replace_special_headers(headers).should eql "insert locked_percentage idx_miss_percentage"
   end
 
   it 'should return the data' do
-    test = MongostatGraphite.new
     test_headers = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
-    test.get_headers(test_headers)
+    @mongo_stat.set_headers_from(test_headers)
     test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
-    symbol_hash = test.get_data(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    symbol_hash = @mongo_stat.get_data_from(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
     symbol_hash.should eql (
       {
