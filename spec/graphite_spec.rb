@@ -13,7 +13,7 @@ describe 'Mongostat_Graphite' do
     end
 
     def log(time, measurements)
-      @metrics_received = measurements
+      @metrics_received = measurements.flatten.inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
     end
 
   end
