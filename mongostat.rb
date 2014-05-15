@@ -6,7 +6,7 @@ require 'graphite/logger'
 class Mongostat
   attr_reader :headers, :graphite_metrics
   @headers = {}
-  @patterns = { /idx miss %/ => 'idx_miss_percentage', /locked %/ => 'locked_percentage' }
+  @graphite_metrics = ["locked_percentage"]
 
   def read_input(&block)
     ARGF.each_line do |line|
@@ -31,7 +31,11 @@ class Mongostat
   end
 
   def replace_special_headers(headers)
-    @patterns.each { |key, value|
+    patterns = {}
+    patterns[/idx miss %/] = 'idx_miss_percentage'
+    patterns[/locked %/] = 'locked_percentage'
+
+    patterns.each { |key, value|
       headers.gsub! key, value
     }
     headers
