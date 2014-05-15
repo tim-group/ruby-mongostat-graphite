@@ -29,19 +29,6 @@ class Mongostat
     end
   end
 
-  def read_and_output_to_graphite
-    @graphitehost = 'localhost'
-    @graphite = Graphite::Logger.new(@graphitehost)
-    @graphite.logger = Logger.new('graphite.out')
-
-    graphite_rows = []
-    read_input do |data|
-      graphite_rows = data.sort.map {|key,value| "mongo.#{hosntame}.#{key}:#{value}" }.join(',')
-      graphite_rows = prefix_keys(rows, "mysql.#{@mysql_hostname.split('.').reverse.join('.')}.")
-    end
-    @graphite.log(Time.now.to_i, graphite_rows) if @graphite
-  end
-
   def replace_special_headers(headers)
     headers.gsub! /idx miss %/, 'idx_miss_percentage'
     headers.gsub! /locked %/,   'locked_percentage'
