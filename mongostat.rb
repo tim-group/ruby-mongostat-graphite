@@ -7,19 +7,19 @@ class Mongostat
   attr_reader :headers, :graphite_metrics
   @headers = {}
   @graphite_metrics = ["locked_percentage"]
-  #["insert", "query", "update", "delete", "getmore", "command", "flushes",
-  #            "mapped", "vsize", "res", "faults", "lockedv", "idx", "miss", "qr|qw", "ar|aw",
-  #            "netIn", "netOut", "conn", "time"]
 
   def read_input(&block)
     ARGF.each_line do |line|
+      process_and_output(line, &block)
+    end
+  end
 
-      if !(line =~ /^connected/)
-        if line =~ /^[a-zA-Z]/
-          set_headers_from line
-        else
-          block.call(get_data_from(line)) if block
-        end
+  def process_and_output(line, &block)
+    if !(line =~ /^connected/)
+      if line =~ /^[a-zA-Z]/
+        set_headers_from line
+      else
+        block.call(get_data_from(line)) if block
       end
     end
   end
