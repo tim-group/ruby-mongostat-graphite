@@ -46,9 +46,10 @@ describe 'Mongostat_Graphite' do
 
     @graphite_logger = MockGraphiteLogger.new
     @mongo_stat = Mongostat_Graphite.new({:graphite_logger => @graphite_logger})
-    @mongo_stat.set_headers_from(headers_209)
 
+    @mongo_stat.set_headers_from(headers_209)
     data = @mongo_stat.get_data_from(test_data)
+
     @mongo_stat.output_to_graphite(data)
 
     metrics_received = @graphite_logger.metrics_received
@@ -62,6 +63,11 @@ describe 'Mongostat_Graphite' do
     metrics_received["insert"].should eql "1"
     metrics_received["update"].should eql "3"
     metrics_received["delete"].should eql "4"
+    metrics_received["idx_miss_percentage"].should eql "10"
+    metrics_received["conn"].should eql "100"
+    metrics_received["getmore"].should eql "5"
+    metrics_received["command"].should eql "6"
+    metrics_received["flushes"].should eql "7"
   end
 
 end
