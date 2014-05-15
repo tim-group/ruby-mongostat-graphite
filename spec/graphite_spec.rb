@@ -47,10 +47,11 @@ describe 'Mongostat_Graphite' do
     @graphite_logger = MockGraphiteLogger.new
     @mongo_stat = Mongostat_Graphite.new({:graphite_logger => @graphite_logger})
 
-    @mongo_stat.set_headers_from(headers_209)
-    data = @mongo_stat.get_data_from(test_data)
-
-    @mongo_stat.output_to_graphite(data)
+    [headers_209, test_data].each { |line|
+      @mongo_stat.process_and_output(line) do |hash|
+        @mongo_stat.output_to_graphite(hash)
+      end
+    }
 
     metrics_received = @graphite_logger.metrics_received
     metrics_received["locked_percentage"].should eql "9"
