@@ -51,7 +51,8 @@ describe 'Mongostat_Graphite' do
     data = @mongo_stat.get_data_from(test_data)
     @mongo_stat.output_to_graphite(data)
 
-    @graphite_logger.metrics_received.should eql "hello"
+    metrics_received = @graphite_logger.metrics_received
+    metrics_received["locked_percentage"].should eql "9"
   end
 
 end
