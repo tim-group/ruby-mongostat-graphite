@@ -1,8 +1,8 @@
 require 'rubygems'
 require 'graphite/logger'
+require 'mongostat'
 
-module Mongostat
-class Parser
+class Mongostat::Parser
   attr_reader :headers
   @headers = {}
 
@@ -54,7 +54,6 @@ class Parser
     patterns
   end
 
-end
 end
 
 

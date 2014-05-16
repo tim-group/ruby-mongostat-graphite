@@ -1,14 +1,15 @@
 require 'rubygems'
-require 'mongostat/graphite_publisher'
-$: << File.join(File.dirname(__FILE__),  "..", "files")
+require 'mongostat'
+require 'logger'
+$: << File.join(File.dirname(__FILE__),  "..", "mongostat", "lib")
 
-describe 'MongostatGraphitePublisher' do
+describe 'MongostatPublisher' do
 
-  class MockGraphiteLogger < Graphite::Logger
+  class MockLogger < Logger
     attr_reader :metrics_received
 
     def initialize
-      @metrics_received = []
+      @metrics_received = nil
     end
 
     def log(time, measurements)
@@ -17,10 +18,10 @@ describe 'MongostatGraphitePublisher' do
 
   end
 
-  class MongostatGraphitePublisherTest
+  class MongostatPublisherTest
 
     def initialize()
-      script_filename = 'lib/mongostate/graphite_publisher.rb'
+      script_filename = 'lib/mongostat/publisher.rb'
       @script_path = File.join(File.dirname(__FILE__), ".." )
       @fixture_path = File.join(File.dirname(__FILE__), "fixtures")
       @script = "/usr/bin/ruby #{@script_path}/#{script_filename}"
@@ -32,19 +33,19 @@ describe 'MongostatGraphitePublisher' do
   end
 
   before do
-   @test = MongostatGraphitePublisherTest.new
+   @test = MongostatPublisherTest.new
+  end
+
+  it 'should output data to stdout with newlines by default' do
+    @test.run_via_cli('mongostat_209_single_line').should eql "ar:0 aw:0 command:1 conn:1 delete:0 faults:0 flushes:0 getmore:0 idx_miss_percentage:0 insert:0 locked_percentage:0 mapped:16.2g netIn:62b netOut:1k qr:0 query:0 qw:0 res:2m time:16:01:49 update:0 vsize:34.1g \n"
   end
 
   it 'should return the headers for mongostat 2.0.9' do
     headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
 
-    graphite_logger = MockGraphiteLogger.new
-    publisher = Mongostat::GraphitePublisher.new({:logger => graphite_logger})
-
-    publisher.process_and_output headers_209 do |hash|
-      publisher.output_to_graphite(hash)
-    end
+    stdout_logger = MockLogger.new
+    publisher = Mongostat::Publisher.new({:logger => stdout_logger})
 
     [headers_209, test_data].each { |line|
       publisher.process_and_output(line) do |hash|
@@ -52,7 +53,7 @@ describe 'MongostatGraphitePublisher' do
       end
     }
 
-    metrics_received = graphite_logger.metrics_received
+    metrics_received = stdout_logger.metrics_received
     metrics_received["locked_percentage"].should eql "9"
     metrics_received["faults"].should eql "8"
     metrics_received["qw"].should eql "12"

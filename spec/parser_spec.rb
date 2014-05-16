@@ -23,10 +23,6 @@ describe 'Mongostat::Parser' do
    @parser = Mongostat::Parser.new
   end
 
-  xit 'should output data to stdout with newlines by default' do
-    @test.run_via_cli('mongostat_209_single_line').should eql "{ar:0,aw:0,command:1,conn:1,delete:0,faults:0,flushes:0,getmore:0,idx_miss_percentage:0,insert:0,locked_percentage:0,mapped:16.2g,netIn:62b,netOut:1k,qr:0,query:0,qw:0,res:2m,time:16:01:49,update:0,vsize:34.1g}\n"
-  end
-
   it 'should return the headers for mongostat 2.0.9' do
     headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     @parser.set_headers_from(headers_209)
