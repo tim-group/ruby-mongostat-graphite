@@ -2,30 +2,26 @@
 
 require 'rubygems'
 require 'graphite/logger'
-require 'mongostat/publisher'
-require 'logger'
+require 'mongostat'
 
 class Mongostat::GraphitePublisher < Mongostat::Publisher
-  attr_reader :graphite_metrics
+  attr_reader :filter_metrics
 
   def initialize(args={})
+    @filter_metrics = ["locked_percentage", "insert", "query", "update", "delete", "faults","ar", "aw", "qr", "qw", "idx_miss_percentage", "conn", "getmore", "command", "flushes"]
 
-    @graphite_metrics = ["locked_percentage", "insert", "query", "update", "delete", "faults",
-                         "ar", "aw", "qr", "qw", "idx_miss_percentage", "conn", "getmore", "command", "flushes"]
-    graphite_host = 'metrics'
-    #graphite_port
+    graphite_host = args[:graphite_host] || 'metrics'
     @logger = args[:logger] || Graphite::Logger.new(graphite_host)
-    @parser = Mongostat::Parser.new
   end
 
   def filter(data)
-     data.select { |metric, value| @graphite_metrics.include?(metric.to_s) }
+     data.select { |metric, value| @filter_metrics.include?(metric.to_s) }
   end
 
 end
 
 if caller() == []
-  Mongostat::GraphitePublisher.new.read_and_output
+  Mongostat::GraphitePublisher.new.parse_and_log
 end
 
 

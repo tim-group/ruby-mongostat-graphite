@@ -42,13 +42,9 @@ describe 'MongostatGraphitePublisher' do
     graphite_logger = MockGraphiteLogger.new
     publisher = Mongostat::GraphitePublisher.new({:logger => graphite_logger})
 
-    publisher.process_and_output headers_209 do |hash|
-      publisher.output_to_graphite(hash)
-    end
-
     [headers_209, test_data].each { |line|
-      publisher.process_and_output(line) do |hash|
-        publisher.log_to_output(hash)
+      publisher.parse(line) do |hash|
+        publisher.log(hash)
       end
     }
 

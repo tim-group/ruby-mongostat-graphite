@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'graphite/logger'
 require 'mongostat'
 
 class Mongostat::Parser
@@ -8,24 +7,23 @@ class Mongostat::Parser
 
   def read_input(&block)
     ARGF.each_line do |line|
-      process_and_output(line, &block)
+      parse(line, &block)
     end
   end
 
-  def process_and_output(line, &block)
+  def parse(line, &block)
     if !(line =~ /^connected/)
       if line =~ /^[a-zA-Z]/
         set_headers_from line
       else
-        block.call(get_data_from(line)) if block
+        filtered_lines = filter(get_data_from(line))
+        block.call(filtered_lines) if block
       end
     end
   end
 
-  def read_and_output_to_stdout
-    read_input do |data|
-      puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
-    end
+  def filter(data)
+    data
   end
 
   def replace_special_headers(headers)

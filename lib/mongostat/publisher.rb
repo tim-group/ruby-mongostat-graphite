@@ -1,47 +1,34 @@
 #!/usr/bin/ruby
 
 require 'rubygems'
-require 'logger'
-require 'mongostat/parser'
+require 'mongostat'
 
 class Mongostat::StdoutLogger
   def log (time, data)
-    data.each do |key, value|
-      print "#{key}:#{value} "
+    puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
     end
-    print "\n"
-  end
 end
 
-class Mongostat::Publisher
+class Mongostat::Publisher < Mongostat::Parser
 
   def initialize(args={})
     @logger = args[:logger] || Mongostat::StdoutLogger.new
-    @parser = Mongostat::Parser.new
   end
 
-  def read_and_output
-    @parser.read_input do |data|
-      log_to_output filter data
+  def parse_and_log
+    read_input do |data|
+      log data
     end
   end
 
-  def process_and_output(line, &block)
-      @parser.process_and_output(line, &block)
-  end
-
-  def filter(data)
-    data
-  end
-
-  def log_to_output(data)
+  def log(data)
       @logger.log(Time.now.to_i, data.sort) if @logger and !data.nil?
   end
 
 end
 
 if caller() == []
-  Mongostat::Publisher.new.read_and_output
+  Mongostat::Publisher.new.parse_and_log
 end
 
 
