@@ -34,7 +34,6 @@ describe 'Mongostat_Graphite' do
 
   before do
    @test = Mongostat_Graphite_Test.new
-   @mongo_stat = Mongostat_Graphite.new
   end
 
   after do

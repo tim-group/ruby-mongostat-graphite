@@ -4,9 +4,12 @@ require 'rubygems'
 require 'graphite/logger'
 
 class Mongostat
-  attr_reader :headers, :graphite_metrics
+  attr_reader :headers
   @headers = {}
-  @graphite_metrics = ["locked_percentage"]
+
+  def intialize
+
+  end
 
   def read_input(&block)
     ARGF.each_line do |line|
@@ -31,14 +34,10 @@ class Mongostat
   end
 
   def replace_special_headers(headers)
-    patterns = {}
-    patterns[/idx miss %/] = 'idx_miss_percentage'
-    patterns[/locked %/] = 'locked_percentage'
-
-    patterns.each { |key, value|
-      headers.gsub! key, value
+    replacements_patterns.inject(headers) { |headers, (pattern, replacement)|
+      headers.gsub! pattern, replacement
+      headers
     }
-    headers
   end
 
   def set_headers_from(line)
@@ -51,6 +50,13 @@ class Mongostat
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
     @headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
+  end
+
+  def replacements_patterns
+    patterns = {}
+    patterns[/idx miss %/] = 'idx_miss_percentage'
+    patterns[/locked %/] = 'locked_percentage'
+    patterns
   end
 
 end
