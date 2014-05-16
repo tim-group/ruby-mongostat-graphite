@@ -5,7 +5,8 @@ require 'graphite/logger'
 require 'mongostat'
 require 'logger'
 
-class Mongostat_Graphite < Mongostat
+module Mongostat
+class GraphitePublisher < Mongostat::Parser
   attr_reader :graphite_metrics
 
   def initialize(args={})
@@ -31,6 +32,8 @@ class Mongostat_Graphite < Mongostat
 end
 
 if caller() == []
-  Mongostat_Graphite.new.read_and_output_to_graphite
+  Mongostat::GraphitePublisher.new.read_and_output_to_graphite
+end
+
 end
 

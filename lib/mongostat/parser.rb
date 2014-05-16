@@ -1,9 +1,8 @@
-#!/usr/bin/ruby
-
 require 'rubygems'
 require 'graphite/logger'
 
-class Mongostat
+module Mongostat
+class Parser
   attr_reader :headers
   @headers = {}
 
@@ -56,8 +55,6 @@ class Mongostat
   end
 
 end
-
-if caller() == []
-  Mongostat.new.read_and_output_to_stdout
 end
+
 

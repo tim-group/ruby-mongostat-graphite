@@ -2,11 +2,10 @@ require 'rubygems'
 require 'mongostat_graphite'
 $: << File.join(File.dirname(__FILE__),  "..", "files")
 
-describe 'Mongostat_Graphite' do
+describe 'MongostatGraphitePublisher' do
 
   class MockGraphiteLogger < Graphite::Logger
     attr_reader :metrics_received
-
 
     def initialize
       @metrics_received = nil
@@ -18,7 +17,7 @@ describe 'Mongostat_Graphite' do
 
   end
 
-  class Mongostat_Graphite_Test
+  class MongostatGraphitePublisherTest
 
     def initialize()
       script_filename = 'mongostat_graphite.rb'
@@ -33,26 +32,23 @@ describe 'Mongostat_Graphite' do
   end
 
   before do
-   @test = Mongostat_Graphite_Test.new
-  end
-
-  after do
+   @test = MongostatGraphitePublisherTest.new
   end
 
   it 'should return the headers for mongostat 2.0.9' do
     headers_209 = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
 
-    @graphite_logger = MockGraphiteLogger.new
-    @mongo_stat = Mongostat_Graphite.new({:graphite_logger => @graphite_logger})
+    graphite_logger = MockGraphiteLogger.new
+    publisher = Mongostat::GraphitePublisher.new({:graphite_logger => graphite_logger})
 
     [headers_209, test_data].each { |line|
-      @mongo_stat.process_and_output(line) do |hash|
-        @mongo_stat.output_to_graphite(hash)
+      publisher.process_and_output(line) do |hash|
+        publisher.output_to_graphite(hash)
       end
     }
 
-    metrics_received = @graphite_logger.metrics_received
+    metrics_received = graphite_logger.metrics_received
     metrics_received["locked_percentage"].should eql "9"
     metrics_received["faults"].should eql "8"
     metrics_received["qw"].should eql "12"
