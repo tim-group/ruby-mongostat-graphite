@@ -7,10 +7,6 @@ class Mongostat
   attr_reader :headers
   @headers = {}
 
-  def intialize
-
-  end
-
   def read_input(&block)
     ARGF.each_line do |line|
       process_and_output(line, &block)
