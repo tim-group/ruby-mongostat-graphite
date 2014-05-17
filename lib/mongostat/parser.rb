@@ -12,13 +12,13 @@ class Mongostat::Parser
   end
 
   def parse(line, &block)
-    if !(line =~ /^connected/)
-      if line =~ /^[a-zA-Z]/
-        set_headers_from line
-      else
-        filtered_lines = filter parsed_data_from line
-        block.call(filtered_lines) if block
-      end
+    if (line =~ /^connected/)
+      return
+    elsif line =~ /^[a-zA-Z]/
+      set_headers_from line
+    else
+      filtered_lines = filter parsed_data_from line
+      block.call(filtered_lines) if block
     end
   end
 
