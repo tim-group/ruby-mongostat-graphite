@@ -38,7 +38,7 @@ describe 'Mongostat::Parser' do
     test_headers = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     @parser.set_headers_from(test_headers)
     test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
-    symbol_hash = @parser.get_data_from(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    symbol_hash = @parser.parsed_data_from(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
     symbol_hash.should eql(
       {

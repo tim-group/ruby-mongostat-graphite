@@ -16,7 +16,7 @@ class Mongostat::Parser
       if line =~ /^[a-zA-Z]/
         set_headers_from line
       else
-        filtered_lines = filter(get_data_from(line))
+        filtered_lines = filter parsed_data_from line
         block.call(filtered_lines) if block
       end
     end
@@ -39,10 +39,10 @@ class Mongostat::Parser
     @headers = new_headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
-  def get_data_from(line)
+  def parsed_data_from(line)
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
-    @headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
+    @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
   end
 
   def replacements_patterns
