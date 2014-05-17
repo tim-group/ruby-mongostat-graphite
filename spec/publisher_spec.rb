@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'mongostat'
 require 'logger'
-$: << File.join(File.dirname(__FILE__),  "..", "mongostat", "lib")
+$: << File.join(File.dirname(__FILE__),  '..', 'mongostat', 'lib')
 
 describe 'MongostatPublisher' do
 
@@ -22,8 +22,8 @@ describe 'MongostatPublisher' do
 
     def initialize()
       script_filename = 'lib/mongostat/publisher.rb'
-      @script_path = File.join(File.dirname(__FILE__), ".." )
-      @fixture_path = File.join(File.dirname(__FILE__), "fixtures")
+      @script_path = File.join(File.dirname(__FILE__), '..' )
+      @fixture_path = File.join(File.dirname(__FILE__), 'fixtures')
       @script = "/usr/bin/ruby #{@script_path}/#{script_filename}"
     end
 
@@ -54,21 +54,21 @@ describe 'MongostatPublisher' do
     }
 
     metrics_received = stdout_logger.metrics_received
-    metrics_received["locked_percentage"].should eql "9"
-    metrics_received["faults"].should eql "8"
-    metrics_received["qw"].should eql "12"
-    metrics_received["aw"].should eql "14"
-    metrics_received["qr"].should eql "11"
-    metrics_received["ar"].should eql "13"
-    metrics_received["query"].should eql "2"
-    metrics_received["insert"].should eql "1"
-    metrics_received["update"].should eql "3"
-    metrics_received["delete"].should eql "4"
-    metrics_received["idx_miss_percentage"].should eql "10"
-    metrics_received["conn"].should eql "100"
-    metrics_received["getmore"].should eql "5"
-    metrics_received["command"].should eql "6"
-    metrics_received["flushes"].should eql "7"
+    metrics_received['locked_percentage'].should eql '9'
+    metrics_received['faults'].should eql '8'
+    metrics_received['qw'].should eql '12'
+    metrics_received['aw'].should eql '14'
+    metrics_received['qr'].should eql '11'
+    metrics_received['ar'].should eql '13'
+    metrics_received['query'].should eql '2'
+    metrics_received['insert'].should eql '1'
+    metrics_received['update'].should eql '3'
+    metrics_received['delete'].should eql '4'
+    metrics_received['idx_miss_percentage'].should eql '10'
+    metrics_received['conn'].should eql '100'
+    metrics_received['getmore'].should eql '5'
+    metrics_received['command'].should eql '6'
+    metrics_received['flushes'].should eql '7'
   end
 
 end
