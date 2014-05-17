@@ -8,7 +8,7 @@ class Mongostat::GraphitePublisher < Mongostat::Publisher
   attr_reader :filter_metrics
 
   def initialize(args={})
-    @filter_metrics = ["locked_percentage", "insert", "query", "update", "delete", "faults","ar", "aw", "qr", "qw", "idx_miss_percentage", "conn", "getmore", "command", "flushes"]
+    @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command flushes)
 
     graphite_host = args[:graphite_host] || 'metrics'
     @logger = args[:logger] || Graphite::Logger.new(graphite_host)

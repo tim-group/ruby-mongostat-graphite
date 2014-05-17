@@ -27,9 +27,9 @@ class Mongostat::Parser
   end
 
   def replace_special_headers(headers)
-    replacements_patterns.inject(headers) { |headers, (pattern, replacement)|
-      headers.gsub! pattern, replacement
-      headers
+    replacements_patterns.inject(headers) { |all_headers, (pattern, replacement)|
+      all_headers.gsub! pattern, replacement
+      all_headers
     }
   end
 
@@ -41,7 +41,7 @@ class Mongostat::Parser
 
   def get_data_from(line)
     data = line.split(/\s|\|/).select{|part| part.length > 0}
-    data.select { |part| part.gsub(/\s+/, "") =~ /^[0-9]/}
+    data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
     @headers.zip(data).inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
   end
 
