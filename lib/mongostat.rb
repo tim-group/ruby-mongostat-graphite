@@ -7,7 +7,7 @@ module Mongostat
 end
 
 if caller() == []
-  parser = Mongostat::Parser.new({:publisher => Mongostat::Publisher.new})
+  parser = Mongostat::Parser.new({:publisher => Mongostat::GraphitePublisher.new})
   control_loop = Mongostat::ControlLoop.new("/usr/bin/mongostat", parser)
   control_loop.start()
 end
