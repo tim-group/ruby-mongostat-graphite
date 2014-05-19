@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'mongostat'
+require 'syslog'
 
 class Mongostat::Parser
   attr_reader :headers
@@ -16,13 +17,20 @@ class Mongostat::Parser
     end
   end
 
+  def log(line)
+      syslog = Syslog.open('mongostat', Syslog::LOG_CONS)
+      syslog.mask = Syslog::LOG_UPTO(Syslog::LOG_INFO)
+      syslog.log(line)
+      syslog.close
+  end
+
   def parse_and_publish(line)
-    if (line =~ /^connected/)
-      return
-    elsif line =~ /^[a-zA-Z]/
+    if (line =~ /^[a-zA-Z]/)
       set_headers_from(line)
-    else
+    elsif (line =~ /^\s+\d/)
       @publisher.publish(parsed_data_from(line))
+    else
+      log(line)
     end
   end
 
