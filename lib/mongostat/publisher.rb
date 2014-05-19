@@ -6,29 +6,26 @@ require 'mongostat'
 class Mongostat::StdoutLogger
   def log (time, data)
     puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
-    end
+  end
 end
 
-class Mongostat::Publisher < Mongostat::Parser
+class Mongostat::Publisher
 
   def initialize(args={})
     @logger = args[:logger] || Mongostat::StdoutLogger.new
   end
 
-  def parse_and_log
-    read_input do |data|
-      log data
-    end
+  def publish(data)
+    #data.each {|key,value| puts "'#{key}' -> '#{value}',"}
+    #puts "{#{data.sort.map {|key,value| "#{key}:#{value}" }.join(',')}}"
+    @logger.log(Time.now.to_i, data) if @logger and !data.nil?
   end
-
-  def log(data)
-      @logger.log(Time.now.to_i, data.sort) if @logger and !data.nil?
-  end
-
 end
 
 if caller() == []
-  Mongostat::Publisher.new.parse_and_log
+  publisher = Mongostat::Publisher.new
+  Mongostat::Parser.new({:publisher => publisher}).read_input
 end
+
 
 

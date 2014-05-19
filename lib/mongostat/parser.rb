@@ -4,26 +4,26 @@ require 'mongostat'
 class Mongostat::Parser
   attr_reader :headers
   @headers = {}
+  @publisher = nil
 
-  def read_input(&block)
+  def initialize(args = {})
+    @publisher = args[:publisher] || Mongostat::GraphitePublisher.new
+  end
+
+  def read_input
     ARGF.each_line do |line|
-      parse(line, &block)
+      parse_and_publish(line)
     end
   end
 
-  def parse(line, &block)
+  def parse_and_publish(line)
     if (line =~ /^connected/)
       return
     elsif line =~ /^[a-zA-Z]/
-      set_headers_from line
+      set_headers_from(line)
     else
-      filtered_lines = filter parsed_data_from line
-      block.call(filtered_lines) if block
+      @publisher.publish(parsed_data_from(line))
     end
-  end
-
-  def filter(data)
-    data
   end
 
   def replace_special_headers(headers)
@@ -53,5 +53,4 @@ class Mongostat::Parser
   end
 
 end
-
 

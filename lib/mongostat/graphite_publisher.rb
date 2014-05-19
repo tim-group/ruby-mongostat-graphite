@@ -4,7 +4,7 @@ require 'rubygems'
 require 'graphite/logger'
 require 'mongostat'
 
-class Mongostat::GraphitePublisher < Mongostat::Publisher
+class Mongostat::GraphitePublisher
   attr_reader :filter_metrics
 
   def initialize(args={})
@@ -14,14 +14,12 @@ class Mongostat::GraphitePublisher < Mongostat::Publisher
     @logger = args[:logger] || Graphite::Logger.new(graphite_host)
   end
 
-  def filter(data)
-     data.select { |metric, value| @filter_metrics.include?(metric.to_s) }
+  def publish(data)
+
+    filtered_data = data.select { |metric, value| @filter_metrics.include?(metric.to_s) }
+    @logger.log(Time.now.to_i, filtered_data) if @logger and !filtered_data.nil?
+
   end
 
 end
-
-if caller() == []
-  Mongostat::GraphitePublisher.new.parse_and_log
-end
-
 
