@@ -3,31 +3,23 @@ require 'mongostat'
 require 'syslog'
 
 class Mongostat::Parser
-  attr_reader :headers
-  @headers = {}
-  @publisher = nil
+  attr_accessor :headers
 
   def initialize(args = {})
     @publisher = args[:publisher] || Mongostat::GraphitePublisher.new
-  end
-
-  def log(line)
-      syslog = Syslog.open('mongostat', Syslog::LOG_CONS, Syslog::LOG_INFO)
-      #syslog.mask = Syslog::LOG_UPTO(Syslog::LOG_INFO)
-      syslog.log(Syslog::LOG_INFO, line.to_s)
-      syslog.close
+    @logger = args[:logger]
+    @headers = {}
   end
 
   def parse_and_publish(line)
-
     if (line =~ /couldn't connect/)
-      log "#{line}"
+      @logger.log("#{line}")
     elsif (line =~ /^[a-zA-Z]/)
       set_headers_from(line)
     elsif (line =~ /^\s+\d/)
       @publisher.publish(parsed_data_from(line))
     else
-      log line
+      @logger.log(line)
     end
   end
 

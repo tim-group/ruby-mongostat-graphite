@@ -5,7 +5,7 @@ $: << File.join(File.dirname(__FILE__),  '..', 'mongostat', 'lib')
 
 describe 'MongostatPublisher' do
 
-  class MockLogger
+  class MockOutput
     attr_reader :metrics_received
 
     def initialize
@@ -19,8 +19,8 @@ describe 'MongostatPublisher' do
   end
 
   before do
-    @logger = MockLogger.new
-    @publisher = Mongostat::Publisher.new({:logger => @logger})
+    @output = MockOutput.new
+    @publisher = Mongostat::Publisher.new({:output => @output})
   end
 
   it 'should return the headers for mongostat 2.0.9' do
@@ -50,7 +50,7 @@ describe 'MongostatPublisher' do
     }
     @publisher.publish(data)
 
-    metrics_received = @logger.metrics_received
+    metrics_received = @output.metrics_received
     metrics_received[:locked_percentage].should eql '9'
     metrics_received[:faults].should eql '8'
     metrics_received[:qw].should eql '12'

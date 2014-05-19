@@ -1,18 +1,15 @@
-#!/usr/bin/ruby
-
 require 'rubygems'
 require 'graphite/logger'
 require 'mongostat'
 require 'socket'
 
 class Mongostat::GraphitePublisher
-  attr_reader :filter_metrics
 
   def initialize(args={})
     @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command flushes)
 
     graphite_host = args[:graphite_host] || 'metrics'
-    @logger = args[:logger] || Graphite::Logger.new(graphite_host)
+    @graphite = args[:graphite] || Graphite::Logger.new(graphite_host)
   end
 
   def filter(data)
@@ -25,8 +22,7 @@ class Mongostat::GraphitePublisher
 
   def publish(data)
     data_with_renamed_keys = embed_hostname_in_keys(filter(data))
-    @logger.log(Time.now.to_i, data_with_renamed_keys) if @logger and !data_with_renamed_keys.nil?
-
+    @graphite.log(Time.now.to_i, data_with_renamed_keys) if @graphite and !data_with_renamed_keys.nil?
   end
 
 end
