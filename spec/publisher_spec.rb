@@ -18,31 +18,12 @@ describe 'MongostatPublisher' do
 
   end
 
-  class MongostatPublisherTest
-
-    def initialize()
-      script_filename = 'lib/mongostat/publisher.rb'
-      @script_path = File.join(File.dirname(__FILE__), '..' )
-      @fixture_path = File.join(File.dirname(__FILE__), 'fixtures')
-      @script = "/usr/bin/ruby #{@script_path}/#{script_filename}"
-    end
-
-    def run_via_cli(fixture_filename)
-      `cd #{@script_path}/lib; cat #{@fixture_path}/#{fixture_filename} | #{@script}`
-    end
-  end
-
   before do
-   @test = MongostatPublisherTest.new
-  end
-
-  it 'should output data to stdout with newlines by default' do
-    @test.run_via_cli('mongostat_209_single_line').should eql "{ar:0,aw:0,command:1,conn:1,delete:0,faults:0,flushes:0,getmore:0,idx_miss_percentage:0,insert:0,locked_percentage:0,mapped:16.2g,netIn:62b,netOut:1k,qr:0,query:0,qw:0,res:2m,time:16:01:49,update:0,vsize:34.1g}\n"
+    @logger = MockLogger.new
+    @publisher = Mongostat::Publisher.new({:logger => @logger})
   end
 
   it 'should return the headers for mongostat 2.0.9' do
-    logger = MockLogger.new
-    publisher = Mongostat::Publisher.new({:logger =>logger})
 
     data = {
       :idx_miss_percentage => '10',
@@ -67,9 +48,9 @@ describe 'MongostatPublisher' do
       :command => '6',
       :query => '2',
     }
-    publisher.publish(data)
+    @publisher.publish(data)
 
-    metrics_received = logger.metrics_received
+    metrics_received = @logger.metrics_received
     metrics_received[:locked_percentage].should eql '9'
     metrics_received[:faults].should eql '8'
     metrics_received[:qw].should eql '12'

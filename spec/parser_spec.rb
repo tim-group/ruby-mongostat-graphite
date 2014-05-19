@@ -4,22 +4,7 @@ $: << File.join(File.dirname(__FILE__),  "..", "mongostat", "lib")
 
 describe 'Mongostat::Parser' do
 
-  class MongostatParserTest
-
-    def initialize()
-      script_filename = 'mongostat.rb'
-      @script_path = File.join(File.dirname(__FILE__), "..", "lib")
-      @fixture_path = File.join(File.dirname(__FILE__), "fixtures")
-      @script = "/usr/bin/ruby #{@script_path}/#{script_filename}"
-    end
-
-    def run_via_cli(fixture_filename)
-      `cd #{@script_path}; cat #{@fixture_path}/#{fixture_filename} | #{@script}`
-    end
-  end
-
   before do
-   @test = MongostatParserTest.new
    @parser = Mongostat::Parser.new
   end
 

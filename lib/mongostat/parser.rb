@@ -11,26 +11,23 @@ class Mongostat::Parser
     @publisher = args[:publisher] || Mongostat::GraphitePublisher.new
   end
 
-  def read_input
-    ARGF.each_line do |line|
-      parse_and_publish(line)
-    end
-  end
-
   def log(line)
-      syslog = Syslog.open('mongostat', Syslog::LOG_CONS)
-      syslog.mask = Syslog::LOG_UPTO(Syslog::LOG_INFO)
-      syslog.log(line)
+      syslog = Syslog.open('mongostat', Syslog::LOG_CONS, Syslog::LOG_INFO)
+      #syslog.mask = Syslog::LOG_UPTO(Syslog::LOG_INFO)
+      syslog.log(Syslog::LOG_INFO, line.to_s)
       syslog.close
   end
 
   def parse_and_publish(line)
-    if (line =~ /^[a-zA-Z]/)
+
+    if (line =~ /couldn't connect/)
+      log "#{line}"
+    elsif (line =~ /^[a-zA-Z]/)
       set_headers_from(line)
     elsif (line =~ /^\s+\d/)
       @publisher.publish(parsed_data_from(line))
     else
-      log(line)
+      log line
     end
   end
 
