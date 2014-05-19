@@ -64,24 +64,26 @@ describe 'MongostatGraphitePublisher' do
 
     publisher.publish(data)
 
+    require 'socket'
+    hostname = Socket.gethostname
     metrics_received = logger.metrics_received
-    metrics_received['locked_percentage'].should eql '9'
-    metrics_received['faults'].should eql '8'
-    metrics_received['qw'].should eql '12'
-    metrics_received['aw'].should eql '14'
-    metrics_received['qr'].should eql '11'
-    metrics_received['ar'].should eql '13'
-    metrics_received['query'].should eql '2'
-    metrics_received['insert'].should eql '1'
-    metrics_received['update'].should eql '3'
-    metrics_received['delete'].should eql '4'
-    metrics_received['idx_miss_percentage'].should eql '10'
-    metrics_received['conn'].should eql '100'
-    metrics_received['getmore'].should eql '5'
-    metrics_received['command'].should eql '6'
-    metrics_received['flushes'].should eql '7'
+    metrics_received["mongo.#{hostname}.locked_percentage"].should eql "9"
+    metrics_received["mongo.#{hostname}.faults"].should eql "8"
+    metrics_received["mongo.#{hostname}.qw"].should eql "12"
+    metrics_received["mongo.#{hostname}.aw"].should eql "14"
+    metrics_received["mongo.#{hostname}.qr"].should eql "11"
+    metrics_received["mongo.#{hostname}.ar"].should eql "13"
+    metrics_received["mongo.#{hostname}.query"].should eql "2"
+    metrics_received["mongo.#{hostname}.insert"].should eql "1"
+    metrics_received["mongo.#{hostname}.update"].should eql "3"
+    metrics_received["mongo.#{hostname}.delete"].should eql "4"
+    metrics_received["mongo.#{hostname}.idx_miss_percentage"].should eql "10"
+    metrics_received["mongo.#{hostname}.conn"].should eql "100"
+    metrics_received["mongo.#{hostname}.getmore"].should eql "5"
+    metrics_received["mongo.#{hostname}.command"].should eql "6"
+    metrics_received["mongo.#{hostname}.flushes"].should eql "7"
 
-    metrics_received.has_key?('netIn').should eql false
+    metrics_received.has_key?("mongo.#{hostname}.netIn").should eql false
   end
 
 end
