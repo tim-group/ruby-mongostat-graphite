@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'mongostat/namespace'
 require 'mongostat'
 require 'pty'
 

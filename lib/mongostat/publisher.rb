@@ -1,5 +1,4 @@
-#!/usr/bin/ruby
-
+require 'mongostat/namespace'
 require 'rubygems'
 require 'mongostat'
 

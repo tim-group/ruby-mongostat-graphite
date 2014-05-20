@@ -1,3 +1,5 @@
+require 'mongostat/namespace'
+
 class Mongostat::Logger
   def log(line)
       syslog = Syslog.open('mongostat', Syslog::LOG_CONS, Syslog::LOG_INFO)

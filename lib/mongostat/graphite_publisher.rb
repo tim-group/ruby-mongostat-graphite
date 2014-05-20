@@ -1,3 +1,4 @@
+require 'mongostat/namespace'
 require 'rubygems'
 require 'graphite/logger'
 require 'mongostat'
@@ -8,8 +9,8 @@ class Mongostat::GraphitePublisher
   def initialize(args={})
     @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command flushes)
 
-    graphite_host = args[:graphite_host] || 'metrics'
-    @graphite = args[:graphite] || Graphite::Logger.new(graphite_host)
+    graphite_hostname = args[:graphite_hostname] || 'metrics'
+    @graphite = args[:graphite] || Graphite::Logger.new(graphite_hostname)
   end
 
   def filter(data)

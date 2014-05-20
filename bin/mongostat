@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+$: << File.join(File.dirname(__FILE__),  '..', 'lib')
+
+require 'rubygems'
+require 'mongostat'
+require 'optparse'
+
+option_parser = OptionParser.new do |opts|
+  opts.banner =
+"Usage:
+  mongostat -g $graphite_hostname
+"
+  opts.on("-g", "--graphite_hostname hostname") do |graphite_hostname|
+     @graphite_hostname = graphite_hostname
+  end
+
+end
+
+option_parser.parse! ARGV
+
+if (@graphite_hostname.nil?)
+  print option_parser.help()
+  exit(1)
+end
+
+logger = Mongostat::Logger.new
+parser = Mongostat::Parser.new({
+  :publisher => Mongostat::GraphitePublisher.new({:graphite_hostname => @graphite_hostname}),
+  :logger    => logger
+})
+control_loop = Mongostat::ControlLoop.new({
+  :cmd    => "/usr/bin/mongostat",
+  :parser => parser,
+  :logger => logger
+})
+control_loop.start()
+

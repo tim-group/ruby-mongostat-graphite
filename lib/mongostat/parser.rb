@@ -1,5 +1,6 @@
-require 'rubygems'
+require 'mongostat/namespace'
 require 'mongostat'
+require 'rubygems'
 require 'syslog'
 
 class Mongostat::Parser
