@@ -20,7 +20,7 @@ task :package do
   sh "mkdir -p build"
   sh "if [ -f *.gem ]; then rm *.gem; fi"
   sh "gem build mongostat-graphite.gemspec && mv mongostat-graphite*.gem build/"
-  sh "cd build && fpm -s gem -t deb -n mongostat-graphite mongostat-graphite-*.gem"
+  sh "cd build && fpm -s gem -t deb -n rubygem-mongostat-graphite mongostat-graphite-*.gem"
 end
 
 desc "Clean everything up"
