@@ -4,16 +4,18 @@ require 'mongostat'
 require 'pty'
 
 class Mongostat::ControlLoop
+  attr_reader :pid
   def initialize(args = {})
     @cmd = args[:cmd]
     @parser = args[:parser]
     @logger = args[:logger]
+    @pid = nil
   end
 
   def start()
 
     begin
-      PTY.spawn( @cmd ) do |stdin, stdout, pid|
+      PTY.spawn( @cmd ) do |stdin, stdout, @pid|
         begin
           stdin.each do |line|
             @parser.parse_and_publish(line)
@@ -27,5 +29,10 @@ class Mongostat::ControlLoop
       @logger.log "The child process exited!"
     end
   end
+
+  def stop()
+    Process.kill(9, @pid) if !@pid.nil?
+  end
+
 end
 
