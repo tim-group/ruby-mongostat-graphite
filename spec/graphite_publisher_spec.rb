@@ -41,7 +41,8 @@ describe 'MongostatGraphitePublisher' do
     data['locked_percentage'] = '9'
     data['update'] = '3'
     data['vsize'] = '34.1g'
-    data['command'] = '6'
+    data['command_local'] = '6'
+    data['master'] = '1'
     data['query'] = '2'
 
     publisher.publish(data)
@@ -62,8 +63,9 @@ describe 'MongostatGraphitePublisher' do
     metrics_received["mongo.#{hostname}.idx_miss_percentage"].should eql "10"
     metrics_received["mongo.#{hostname}.conn"].should eql "100"
     metrics_received["mongo.#{hostname}.getmore"].should eql "5"
-    metrics_received["mongo.#{hostname}.command"].should eql "6"
+    metrics_received["mongo.#{hostname}.command_local"].should eql "6"
     metrics_received["mongo.#{hostname}.flushes"].should eql "7"
+    metrics_received["mongo.#{hostname}.master"].should eql "1"
 
     metrics_received.has_key?("mongo.#{hostname}.netIn").should eql false
   end
