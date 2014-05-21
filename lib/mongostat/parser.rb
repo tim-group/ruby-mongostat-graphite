@@ -15,7 +15,7 @@ class Mongostat::Parser
   def parse_and_publish(line)
     case line
       when /couldn't connect/
-        @logger.log("#{line}")
+        @logger.log(line)
       when /^[a-zA-Z]/
         set_headers_from(line)
       when /^\s+\d/
