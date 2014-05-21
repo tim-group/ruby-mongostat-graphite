@@ -7,7 +7,7 @@ require 'socket'
 class Mongostat::GraphitePublisher
 
   def initialize(args={})
-    @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command flushes)
+    @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command_replicated command_local master flushes)
 
     @logger = args[:logger]
     graphite_hostname = args[:graphite_hostname] || 'metrics'
