@@ -18,7 +18,7 @@ class Mongostat::Parser
         @logger.log(line)
       when /^[a-zA-Z]/
         set_headers_from(line)
-      when /^\s+\d/
+      when /^\s+\*?\d/
         @publisher.publish(parsed_data_from(line))
       else
         @logger.log("Un-recognised line: #{line}")
