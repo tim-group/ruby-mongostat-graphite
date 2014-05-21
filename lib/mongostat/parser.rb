@@ -21,7 +21,7 @@ class Mongostat::Parser
       when /^\s+\d/
         @publisher.publish(parsed_data_from(line))
       else
-        @logger.log(line)
+        @logger.log("Un-recognised line: #{line}")
     end
   end
 
