@@ -19,9 +19,9 @@ class Mongostat::Parser
       when /^[a-zA-Z]/
         set_headers_from(line)
       when /^\s+\*?\d/
-        publish(parsed_secondary_data(line))
+        publish(parse_secondary_data(line))
       when /^\s+\d/;
-        publish(parsed_master_data(line))
+        publish(parse_common_data(line))
       else
         @logger.log("Un-recognised line: #{line}")
     end
@@ -44,27 +44,51 @@ class Mongostat::Parser
     @headers = new_headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
-  def split_command_header
-    if @headers.include? 'command'
-      command_index = @headers.index('command')
-      modified_headers = @headers.reject { |key| key == 'command' }
-      modified_headers.insert(command_index, 'command_replicated')
-      modified_headers.insert(command_index, 'command_local')
-      @headers = modified_headers
+  def inject_master_header_and_value(data)
+    if @headers.include? 'repl'
+      repl_index = @headers.index('repl')
+      @headers.push 'master'
+      if data[repl_index] =~ /M/
+        data.push '1'
+      else
+        data.push '0'
+      end
     end
+    data
+  end
+
+  def split_command_header
+    command_index = @headers.index('command')
+    modified_headers = @headers.reject { |key| key == 'command' }
+    modified_headers.insert(command_index, 'command_replicated')
+    modified_headers.insert(command_index, 'command_local')
+    @headers = modified_headers
+  end
+
+  def rename_command_header
+    command_index = @headers.index('command')
+    @headers[command_index] = 'command_local'
+  end
+
+  def strip_wildcard_symbol(line)
+    line.gsub(/\*/,'')
   end
 
   def parse_secondary_data(line)
-    line.gsub!(/\*/,'')
-    split_command_header
-    data = line.split(/\s|\|/).select{|part| part.length > 0}
-    data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
-    @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
+    split_command_header if @headers.include? 'command'
+    strip_wildcard_symbol(line)
+    parse_common_data(strip_wildcard_symbol(line))
   end
 
   def parse_master_data(line)
+    rename_command_header if @headers.include? 'command'
+    parse_common_data(line)
+  end
+
+  def parse_common_data(line)
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
+    data = inject_master_header_and_value(data)
     @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
   end
 
