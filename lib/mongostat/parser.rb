@@ -13,14 +13,15 @@ class Mongostat::Parser
   end
 
   def parse_and_publish(line)
-    if (line =~ /couldn't connect/)
-      @logger.log("#{line}")
-    elsif (line =~ /^[a-zA-Z]/)
-      set_headers_from(line)
-    elsif (line =~ /^\s+\d/)
-      @publisher.publish(parsed_data_from(line))
-    else
-      @logger.log(line)
+    case line
+      when /couldn't connect/
+        @logger.log("#{line}")
+      when /^[a-zA-Z]/
+        set_headers_from(line)
+      when /^\s+\d/
+        @publisher.publish(parsed_data_from(line))
+      else
+        @logger.log(line)
     end
   end
 
