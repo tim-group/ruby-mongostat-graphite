@@ -39,6 +39,7 @@ class Mongostat::Parser
   end
 
   def parsed_data_from(line)
+    line.gsub!(/\*/,'')
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
     @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
