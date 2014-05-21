@@ -9,8 +9,9 @@ class Mongostat::GraphitePublisher
   def initialize(args={})
     @filter_metrics = %w(locked_percentage insert query update delete faults ar aw qr qw idx_miss_percentage conn getmore command flushes)
 
+    @logger = args[:logger]
     graphite_hostname = args[:graphite_hostname] || 'metrics'
-    @graphite = args[:graphite] || Graphite::Logger.new(graphite_hostname)
+    @graphite = args[:graphite] || Graphite::Logger.new(graphite_hostname, @logger)
   end
 
   def filter(data)

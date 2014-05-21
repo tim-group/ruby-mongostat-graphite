@@ -24,8 +24,12 @@ if (@graphite_hostname.nil?)
 end
 
 logger = Mongostat::Logger.new
+publisher = Mongostat::GraphitePublisher.new({
+  :graphite_hostname => @graphite_hostname,
+  :logger => logger
+})
 parser = Mongostat::Parser.new({
-  :publisher => Mongostat::GraphitePublisher.new({:graphite_hostname => @graphite_hostname}),
+  :publisher => publisher,
   :logger    => logger
 })
 control_loop = Mongostat::ControlLoop.new({
