@@ -19,10 +19,16 @@ class Mongostat::Parser
       when /^[a-zA-Z]/
         set_headers_from(line)
       when /^\s+\*?\d/
-        @publisher.publish(parsed_data_from(line))
+        publish(parsed_secondary_data(line))
+      when /^\s+\d/;
+        publish(parsed_master_data(line))
       else
         @logger.log("Un-recognised line: #{line}")
     end
+  end
+
+  def publish(data)
+    @publisher.publish(data)
   end
 
   def replace_special_headers(headers)
@@ -38,8 +44,25 @@ class Mongostat::Parser
     @headers = new_headers.select { |part| part =~ /^[a-z]|[A-Z]/}
   end
 
-  def parsed_data_from(line)
+  def split_command_header
+    if @headers.include? 'command'
+      command_index = @headers.index('command')
+      modified_headers = @headers.reject { |key| key == 'command' }
+      modified_headers.insert(command_index, 'command_replicated')
+      modified_headers.insert(command_index, 'command_local')
+      @headers = modified_headers
+    end
+  end
+
+  def parse_secondary_data(line)
     line.gsub!(/\*/,'')
+    split_command_header
+    data = line.split(/\s|\|/).select{|part| part.length > 0}
+    data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
+    @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
+  end
+
+  def parse_master_data(line)
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
     @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
