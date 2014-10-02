@@ -89,7 +89,19 @@ class Mongostat::Parser
     data = line.split(/\s|\|/).select{|part| part.length > 0}
     data.select { |part| part.gsub(/\s+/, '') =~ /^[0-9]/}
     data = inject_master_header_and_value(data)
-    @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key] = value; hash}
+    hash = @headers.zip(data).inject({}) { |hash, (key, value)|  hash[key.to_sym] = value; hash}
+    add_databasespecific_information(hash)
+  end
+
+  def add_databasespecific_information(hash)
+    split = hash[:locked_percentage].to_s.each_line(":").to_a
+    if (split.length > 1)
+      (database, locked_percentage) = split
+      hash[:locked_percentage] = locked_percentage.gsub("%","")
+      hash[:database] = database.gsub(":","")
+    end
+    hash
+
   end
 
   def replacements_patterns

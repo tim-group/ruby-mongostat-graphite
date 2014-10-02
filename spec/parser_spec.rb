@@ -57,7 +57,7 @@ describe 'Mongostat::Parser' do
   it 'should return the data for a clustered secondary server' do
     test_headers = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn  set repl       time '
     @parser.set_headers_from(test_headers)
-    test_data = '*34     *0   *177     *0       4     3|0       0   376g   753g  2.23g   3295        1          0       0|0     0|0   266b     3k     7 merc  SEC   15:04:04'
+    test_data = '*34     *0   *177     *0       4     3|0       0   376g   753g  2.23g   3295        market_data:1%          0       0|0     0|0   266b     3k     7 merc  SEC   15:04:04'
 
     symbol_hash = @parser.parse_secondary_data(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
@@ -68,6 +68,7 @@ describe 'Mongostat::Parser' do
       :command_local=>"3",
       :command_replicated=>"0",
       :conn=>"7",
+      :database => "market_data",
       :delete=>"0",
       :faults=>"3295",
       :flushes=>"0",
@@ -94,7 +95,7 @@ describe 'Mongostat::Parser' do
   it 'should return the data for an unclustered server' do
     test_headers = 'insert  query update delete getmore command flushes mapped  vsize    res faults locked % idx miss %     qr|qw   ar|aw  netIn netOut  conn       time '
     @parser.set_headers_from(test_headers)
-    test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        9          10       11|12     13|14    62b     1k     100   16:01:49'
+    test_data = '1      2      3      4       5       6       7  16.2g  34.1g     2m      8        market_data:9%          10       11|12     13|14    62b     1k     100   16:01:49'
     symbol_hash = @parser.parse_master_data(test_data).inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
 
     symbol_hash.should eql(
@@ -118,6 +119,7 @@ describe 'Mongostat::Parser' do
       :idx_miss_percentage=>"10",
       :faults=>"8",
       :mapped=>"16.2g",
+      :database => "market_data",
       :delete=>"4",
       :flushes=>"7"
      })

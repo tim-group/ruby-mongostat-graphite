@@ -123,5 +123,65 @@ describe 'Mongostat' do
     metrics_received.has_key?("mongo.#{hostname}.mapped").should eql false
     control_loop.stop
   end
+
+  it 'should output data to stdout with newlines by default for clusters master servers for version 2410 and beyond' do
+    class MockOutput
+      attr_reader :metrics_received
+
+      def initialize
+        @metrics_received = {}
+      end
+
+      def log(time, measurements)
+        @metrics_received = measurements.inject({}) { |hash, entry|  hash[entry[0]] = entry[1]; hash}
+      end
+
+      def size
+        @metrics_received.size
+      end
+
+    end
+    require 'socket'
+    hostname = Socket.gethostname
+    fixture_path = File.join(File.dirname(__FILE__), 'fixtures')
+    mock_output = MockOutput.new
+    logger = Logger.new(STDOUT)
+    logger.level = Logger::FATAL
+    parser = Mongostat::Parser.new({
+                                       :publisher => Mongostat::GraphitePublisher.new({:graphite => mock_output}),
+                                   })
+    control_loop = Mongostat::ControlLoop.new({
+                                                  :cmd          => "cat #{fixture_path}/mongostat_2410_clustered_master_single_line; sleep 999", #never terminate
+                                                  :parser       => parser,
+                                                  :logger       => logger,
+                                              })
+    Thread.new {
+      control_loop.start
+    }
+    sleep 0.5 # wait to mock output to receive stdin
+    metrics_received = mock_output.metrics_received
+    metrics_received["mongo.#{hostname}.market_data.insert"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.query"].should eql "509"
+    metrics_received["mongo.#{hostname}.market_data.update"].should eql "59"
+    metrics_received["mongo.#{hostname}.market_data.delete"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.getmore"].should eql "1"
+    metrics_received["mongo.#{hostname}.market_data.command_local"].should eql "120"
+    metrics_received["mongo.#{hostname}.market_data.flushes"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.faults"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.locked_percentage"].should eql "2.1"
+    metrics_received["mongo.#{hostname}.market_data.idx_miss_percentage"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.qr"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.qw"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.ar"].should eql "1"
+    metrics_received["mongo.#{hostname}.market_data.aw"].should eql "0"
+    metrics_received["mongo.#{hostname}.market_data.conn"].should eql "210"
+    metrics_received["mongo.#{hostname}.market_data.master"].should eql "1"
+    metrics_received.has_key?("mongo.#{hostname}.market_data.netIn").should eql false
+    metrics_received.has_key?("mongo.#{hostname}.market_data.netOut").should eql false
+    metrics_received.has_key?("mongo.#{hostname}.market_data.vsize").should eql false
+    metrics_received.has_key?("mongo.#{hostname}.market_data.res").should eql false
+    metrics_received.has_key?("mongo.#{hostname}.market_data.mapped").should eql false
+    control_loop.stop
+  end
 end
 
