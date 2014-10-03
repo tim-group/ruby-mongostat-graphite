@@ -108,6 +108,7 @@ class Mongostat::Parser
     patterns = {}
     patterns[/idx miss %/] = 'idx_miss_percentage'
     patterns[/locked %/] = 'locked_percentage'
+    patterns[/locked db/] = 'locked_percentage'
     patterns
   end
 
