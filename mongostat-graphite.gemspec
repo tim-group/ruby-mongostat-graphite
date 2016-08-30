@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Mongostat Graphite"
   s.description   = "Log mongostat output to Graphite"
   s.authors       = ["Richard Pearce", "Mehul Shah"]
-  s.email         = 'richard.pearce@timgroup.com'
+  s.email         = 'infra@timgroup.com'
   s.homepage      = "https://github.com/youdevise/ruby-mongostat-graphite"
   s.license       = "GNU"
   s.files         = `git ls-files`.split($/)
