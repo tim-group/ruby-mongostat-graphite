@@ -17,12 +17,13 @@ end
 
 desc "Generate deb file for the gem and command-line tools"
 task :package do
-  gem = '/usr/bin/gem1.9.1'
+  gem = ENV['GEM'] || '/usr/bin/gem1.9.1'
+  fpm = ENV['FPM'] || '/opt/ruby-bundle/embedded/bin/fpm'
   package_name = ENV['PACKAGE'] || 'rubygem-mongostat-graphite'
   sh "mkdir -p build"
   sh "if [ -f *.gem ]; then rm *.gem; fi"
   sh "#{gem} build mongostat-graphite.gemspec && mv mongostat-graphite*.gem build/"
-  sh "cd build && fpm -s gem -t deb -n #{package_name} --gem-gem #{gem} mongostat-graphite-*.gem"
+  sh "cd build && #{fpm} -s gem -t deb -n #{package_name} --gem-gem #{gem} mongostat-graphite-*.gem"
 end
 
 desc "Clean everything up"
