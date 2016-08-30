@@ -15,7 +15,7 @@ class Mongostat::ControlLoop
   def start()
 
     begin
-      PTY.spawn( @cmd ) do |stdin, stdout, @pid|
+      @pid = PTY.spawn( @cmd ) do |stdin, stdout|
         begin
           stdin.each do |line|
             @parser.parse_and_publish(line)
